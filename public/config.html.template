@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
 <span id="debug">true</span>
-<span id="spreadsheet-id">TODO</span>
+<span id="spreadsheetId">TODO</span>
+<span id="rootFolderId">TODO</span>
 </html>

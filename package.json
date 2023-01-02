@@ -25,7 +25,9 @@
     "html-webpack-plugin": "5.5.0",
     "clean-webpack-plugin": "4.0.0",
 
-    "@google/clasp": "2.4.2"
+    "@google/clasp": "2.4.2",
+    "npm-run-all": "4.1.5",
+    "npm-watch": "0.11.0"
   },
   "devDependencies": {
     "eslint": "8.30.0",
@@ -37,17 +39,33 @@
     "eslint-plugin-vue": "9.8.0",
     "@vue/eslint-config-typescript": "11.0.2"
   },
+  "watch": {
+    "build:gas": {
+      "patterns": [
+        "src/gas/*.ts",
+        "src/common/*.ts"
+      ]
+    },
+    "build:vue": {
+      "patterns": [
+        "src/common/*.ts",
+        "src/vue/*.ts",
+        "src/vue/*vue",
+        "public/*"
+      ]
+    }
+  },
   "scripts": {
     "init:clasp": "clasp login",
     "push:clasp": "clasp push",
-    "push:build": "npm run build && npm run push:clasp",
+    "push:build": "run-s build push:clasp",
 
     "build:gas": "webpack --config webpack.config.gas.js",
     "build:vue": "webpack --config webpack.config.vue.js",
-    "build": "npm run build:gas && npm run build:vue",
+    "build": "run-p build:gas build:vue",
     "watch:gas": "webpack --config webpack.config.gas.js --watch",
     "watch:vue": "webpack --config webpack.config.vue.js --watch",
-    "watch": "npm run watch:gas && npm run watch:vue",
+    "watch": "npm-watch",
 
     "clasp-push": "del .\\dist\\*.txt /q && clasp push"
   }
