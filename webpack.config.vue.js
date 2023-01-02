@@ -9,7 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development', // production or
   entry: {
     vue: Path.join(__dirname, 'src/vue/', 'main.ts'),
   },
@@ -46,7 +46,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: 'public/index.html',
-      inject: true,
+      inject: 'body',
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -57,7 +57,10 @@ module.exports = {
     new HtmlInlineCssWebpackPlugin(),
     new VueLoaderPlugin(),
     new CopyWebpackPlugin({
-      patterns: [{ from: Path.resolve(__dirname, 'public/appsscript.json'), to: '' }],
+      patterns: [
+        { from: Path.resolve(__dirname, 'public/appsscript.json'), to: '' },
+        { from: Path.resolve(__dirname, 'public/config.html'), to: '' },
+      ],
     }),
     new CleanWebpackPlugin({
       protectWebpackAssets: false,

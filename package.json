@@ -1,5 +1,5 @@
 {
-  "name": "gas-vue",
+  "name": "vue-gas",
   "version": "1.0.0",
   "dependencies": {
     "typescript": "4.9.4",
@@ -39,6 +39,8 @@
   },
   "scripts": {
     "init:clasp": "clasp login",
+    "push:clasp": "clasp push",
+    "push:build": "npm run build && npm run push:clasp",
 
     "build:gas": "webpack --config webpack.config.gas.js",
     "build:vue": "webpack --config webpack.config.vue.js",

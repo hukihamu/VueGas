@@ -3,13 +3,16 @@ const GasWebpackPlugin = require('gas-webpack-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
-  mode: 'production',
+  mode: 'production', // development or production
   entry: {
     gas: Path.join(__dirname, 'src/gas/', 'main.ts'),
   },
   output: {
     filename: 'gas.js',
     path: Path.join(__dirname, 'dist'),
+    environment: {
+      arrowFunction: false,
+    },
   },
   module: {
     rules: [
