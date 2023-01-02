@@ -6,9 +6,9 @@
     "moduleResolution": "Node",
     "sourceMap": true,
     "skipLibCheck": true,
-
-
+    "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
+    "importHelpers": true,
     "baseUrl": ".",
     "paths": {
       "@c/*": ["src/common/*"],
