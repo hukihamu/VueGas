@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "strict": true,
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "skipLibCheck": true,
+
+
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "@c/*": ["src/common/*"],
+      "@g/*": ["src/gas/*"],
+      "@v/*": ["src/vue/*"]
+    },
+    "types": [
+      "google-apps-script"
+    ],
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
