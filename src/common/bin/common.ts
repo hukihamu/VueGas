@@ -6,10 +6,10 @@ export interface BaseControllerTypes {
 }
 
 export interface Logger {
-  info: (...data: any[]) => void
-  debug: (...data: any[]) => void
-  warn: (...data: any[]) => void
-  error: (...data: any[]) => void
+  info: (label: string, data: any) => void
+  debug: (label: string, data: any) => void
+  warn: (label: string, data: any) => void
+  error: (label: string, data: any) => void
 }
 export const throwMsg = (msg: string): never => {
   throw msg

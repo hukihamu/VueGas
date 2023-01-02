@@ -5,9 +5,9 @@ import { gasClient } from '@v/bin/vue'
 const sampleText = ref('')
 gasClient
   .use<ControllerTypes>()
-  .send('sample', 0)
+  .send('sample')
   .then(it => {
-    sampleText.value = it
+    sampleText.value = it.text + it.sample
   })
 </script>
 

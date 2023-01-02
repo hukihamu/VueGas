@@ -3,4 +3,7 @@ import { sampleController } from '@g/controller/sample'
 import { SampleRepository } from '@g/repository/sampleRepository'
 import { ControllerTypes } from '@c/controllerTypes'
 
-initGas<ControllerTypes>('SampleTitle', { sample: sampleController }).useSpreadsheetDB(SampleRepository)
+initGas<ControllerTypes>('SampleTitle', (global, convertController) => {
+  global.sample = convertController(sampleController)
+  return global
+}).useSpreadsheetDB(SampleRepository)

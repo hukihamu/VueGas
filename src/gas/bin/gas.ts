@@ -1,24 +1,26 @@
-import { BaseControllerTypes, Logger } from '@c/bin/common'
+import { BaseControllerTypes, Logger, throwMsg } from '@c/bin/common'
 export const initGas = <C extends BaseControllerTypes>(
   title: string,
-  controllerList: { [name in keyof C]: Controller<C, any> }
-): InitGasOption => {
+  initGlobal: (
+    global: { [name in keyof C]: GlobalController },
+    convertController: (controller: Controller<C, any>) => GlobalController
+  ) => { [name in keyof C]: GlobalController }): InitGasOption => {
   global.doGet = (): GoogleAppsScript.HTML.HtmlOutput => {
     return HtmlService.createHtmlOutputFromFile('index').setTitle(title)
   }
-  for (const key in controllerList) {
-    global[key] = async (arg: unknown) => {
+  initGlobal(global as any, (controller) => {
+    return async (arg: unknown) => {
       try {
         gLogger.debug('arg: ', arg)
-        const returnValue = await controllerList[key](arg)
+        const returnValue = await controller(arg)
         gLogger.debug('return: ', returnValue)
         return JSON.stringify(returnValue)
       } catch (e) {
-        gLogger.error(e)
+        gLogger.error('Controllerエラー:', e)
         throw e
       }
     }
-  }
+  })
   return initGasOption
 }
 const initGasOption: InitGasOption = {
@@ -37,6 +39,7 @@ export type Controller<C extends BaseControllerTypes, K extends keyof C> = (
 interface InitGasOption {
   useSpreadsheetDB: (...repository: { new (): BaseRepository<any> }[]) => InitGasOption
 }
+type GlobalController = (args: unknown) => Promise<unknown>
 
 export const getEmail = (): string => {
   return Session.getActiveUser().getEmail()
@@ -47,12 +50,12 @@ export const sleep = (mSec: number): void => {
 }
 
 export const gLogger: Logger = {
-  info: data => console.info(data),
-  debug: data => {
-    if (gConfig.debug) console.log(data)
+  info: (label, data) => console.info(label, data),
+  debug: (label, data) => {
+    if (gConfig.debug) console.log(label, data)
   },
-  warn: data => console.warn(data),
-  error: data => console.error(data),
+  warn: (label, data) => console.warn(label, data),
+  error: (label, data) => console.error(label, data),
 }
 
 export class GoogleDriveFolder {
@@ -129,16 +132,18 @@ export class GoogleDriveFile {
   }
 }
 
-const getHtmlConfig = (id: string): string => {
+export const getHtmlConfig = (id: string): string => {
   const content = HtmlService.createHtmlOutputFromFile('config').getContent()
-  return Parser.data(content).from(`<span id="${id}">`).to('</span>').iterate()[0]
+  return (
+    Parser.data(content).from(`<span id="${id}">`).to('</span>').iterate()[0] ??
+    throwMsg(`configId:"${id}"が見つかりませんでした。`)
+  )
 }
 
-// TODO initOption
-export const gConfig = {
+const gConfig = {
   debug: getHtmlConfig('debug').toUpperCase() === 'TRUE',
-  spreadsheetId: getHtmlConfig('spreadsheet-id'),
-  rootFolderId: getHtmlConfig('root-folder-id'),
+  spreadsheetId: getHtmlConfig('spreadsheetId'),
+  rootFolderId: getHtmlConfig('rootFolderId'),
 }
 
 export interface BaseEntity {
