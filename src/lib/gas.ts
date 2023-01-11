@@ -1,4 +1,4 @@
-import { BaseControllerTypes, config, Logger } from '@c/bin/common'
+import { BaseControllerTypes, config, Logger } from '@l/common'
 export const initGas = <C extends BaseControllerTypes>(
   title: string,
   initGlobal: (

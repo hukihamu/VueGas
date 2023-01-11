@@ -1,4 +1,4 @@
-import { BaseControllerTypes } from '@c/bin/common'
+import { BaseControllerTypes } from '@l/common'
 import { SampleModel } from '@c/model/sampleModel'
 
 export interface ControllerTypes extends BaseControllerTypes {

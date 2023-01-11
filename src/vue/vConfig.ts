@@ -1,4 +1,4 @@
-import { Config } from '@c/bin/common'
+import { Config } from '@l/common'
 
 export interface VConfig extends Config {
   vueConfig: string

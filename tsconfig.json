@@ -13,7 +13,8 @@
     "paths": {
       "@c/*": ["src/common/*"],
       "@g/*": ["src/gas/*"],
-      "@v/*": ["src/vue/*"]
+      "@v/*": ["src/vue/*"],
+      "@l/*": ["src/lib/*"]
     },
     "types": [
       "google-apps-script"

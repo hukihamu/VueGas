@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { router } from '@v/bin/vue'
+import { router } from '@l/vue'
 router.afterEach(route => {
   window.google.script.history.replace(undefined, route.query, route.path)
 })

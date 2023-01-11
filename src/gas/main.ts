@@ -1,4 +1,4 @@
-import { initGas } from '@g/bin/gas'
+import { initGas } from '@l/gas'
 import { sampleController } from '@g/controller/sample'
 import { SampleRepository } from '@g/repository/sampleRepository'
 import { ControllerTypes } from '@c/controllerTypes'

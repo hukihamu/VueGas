@@ -1,8 +1,8 @@
 import { RouteRecordRaw, createRouter, createWebHistory, Router } from 'vue-router'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import App from '@v/bin/App.vue'
-import { BaseControllerTypes, Config } from '@c/bin/common'
+import App from '@l/App.vue'
+import { BaseControllerTypes, Config } from '@l/common'
 
 export const initVue = (routes: RouteRecordRaw[]): InitVueOption => {
   router = createRouter({

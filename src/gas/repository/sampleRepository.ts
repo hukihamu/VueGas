@@ -1,6 +1,6 @@
-import { BaseRepository, InitEntity } from '@g/bin/gas'
+import { BaseRepository, InitEntity } from '@l/gas'
 import { SampleEntity } from '@g/entity/sampleEntity'
-import { config } from '@c/bin/common'
+import { config } from '@l/common'
 import { GConfig } from '@g/gConfig'
 
 export class SampleRepository extends BaseRepository<SampleEntity> {

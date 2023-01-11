@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { ControllerTypes } from '@c/controllerTypes'
-import { gasClient } from '@v/bin/vue'
-import { config } from '@c/bin/common'
+import { gasClient } from '@l/vue'
+import { config } from '@l/common'
 import { VConfig } from '@v/vConfig'
 const sampleText = ref('')
 gasClient

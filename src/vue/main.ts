@@ -1,4 +1,4 @@
-import { initVue } from '@v/bin/vue'
+import { initVue } from '@l/vue'
 import SampleView from '@v/view/SampleView.vue'
 
 initVue([
