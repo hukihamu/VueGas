@@ -40,33 +40,33 @@
     "@vue/eslint-config-typescript": "11.0.2"
   },
   "watch": {
-    "build:gas": {
+    "build-dev:gas": {
       "patterns": [
-        "src/gas/*.ts",
-        "src/common/*.ts"
-      ]
+        "src/gas",
+        "src/common"
+      ],
+      "extensions": "ts"
     },
-    "build:vue": {
+    "build-dev:vue": {
       "patterns": [
-        "src/common/*.ts",
-        "src/vue/*.ts",
-        "src/vue/*vue",
-        "public/*"
-      ]
+        "src/common",
+        "src/vue",
+        "src/vue",
+        "public"
+      ],
+      "extensions": "ts,vue.html,json"
     }
   },
   "scripts": {
-    "init:clasp": "clasp login",
-    "push:clasp": "clasp push",
-    "push:build": "run-s build push:clasp",
+    "init-clasp": "clasp login",
+    "push-clasp": "clasp push",
+    "push-clasp:prod": "run-s build-prod push-clasp",
 
-    "build:gas": "webpack --config webpack.config.gas.js",
-    "build:vue": "webpack --config webpack.config.vue.js",
-    "build": "run-p build:gas build:vue",
-    "watch:gas": "webpack --config webpack.config.gas.js --watch",
-    "watch:vue": "webpack --config webpack.config.vue.js --watch",
-    "watch": "npm-watch",
-
-    "clasp-push": "del .\\dist\\*.txt /q && clasp push"
+    "build-prod:gas": "webpack --config webpack.config.gas.js --mode=production",
+    "build-prod:vue": "webpack --config webpack.config.vue.js --mode=production",
+    "build-prod": "run-p build-prod:gas build-prod:vue",
+    "build-dev:gas": "webpack --config webpack.config.gas.js --mode=development",
+    "build-dev:vue": "webpack --config webpack.config.vue.js --mode=development",
+    "watch": "npm-watch"
   }
 }

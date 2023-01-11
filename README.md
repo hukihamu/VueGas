@@ -15,5 +15,5 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
 ## サンプル説明
 適時追記
 ## Issue
-- [ ] config.htmlを3分割(config, gConfig, vConfig)
+- [x] config.htmlを3分割(config, gConfig, vConfig)
   - vConfigはhtmlとマージしてvue側で使えるように

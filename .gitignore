@@ -1,6 +1,6 @@
 /.clasp.json
 /dist/
 /node_modules/
-/public/config.html
 /package-lock.json
 /.idea/
+/public/config.html
