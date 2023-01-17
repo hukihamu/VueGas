@@ -40,11 +40,4 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
 適時追記
 
 ## Issue
-- Web Socketもどき案
-  - script.runを動かす
-  - Socket用ssでフラグを有効化
-  - repositoryのcad時でSocket用ss変更
-  - 変化があるまでwait(1s)
-  - 変化があればreturn
-  - 変化がなければtimeout前にreturn
-  - 止めるときはSocket用ssのフラグを無効化
+- Triggerの幅を持たせる
