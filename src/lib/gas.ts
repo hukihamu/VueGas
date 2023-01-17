@@ -1,27 +1,19 @@
-import { BaseControllerTypes, config, Logger } from '@l/common'
+import { BaseControllerTypes, config, ConfigKeysType, Logger } from '@l/common'
 export const initGas = <C extends BaseControllerTypes>(
   title: string,
+  keys: ConfigKeysType,
   initGlobal: (
     global: { [name in keyof C]: GlobalController },
     convertController: (controller: Controller<C, any>) => GlobalController
   ) => { [name in keyof C]: GlobalController }
 ): InitGasOption => {
   global.doGet = (): GoogleAppsScript.HTML.HtmlOutput => {
-    const content = HtmlService.createHtmlOutputFromFile('config').getContent()
-    const commonData = Parser.data(content)
-      .from('<script type="application/json" id="common-config">')
-      .to('</script>')
-      .iterate()[0]
-    const vueData = Parser.data(content)
-      .from('<script type="application/json" id="vue-config">')
-      .to('</script>')
-      .iterate()[0]
+    const vueConfig = {}
+    for (const key of keys.vue.concat(keys.common)) {
+      vueConfig[key] = PropertiesService.getScriptProperties().getProperty(key)
+    }
     const gasHtml = HtmlService.createHtmlOutputFromFile('index')
-    gasHtml.setContent(
-      gasHtml
-        .getContent()
-        .replace('<?= vueConfig ?>', JSON.stringify(Object.assign(JSON.parse(commonData), JSON.parse(vueData))))
-    )
+    gasHtml.setContent(gasHtml.getContent().replace('<?= vueConfig ?>', JSON.stringify(vueConfig)))
     return gasHtml.setTitle(title)
   }
   initGlobal(global as any, controller => {
@@ -68,7 +60,7 @@ export const sleep = (mSec: number): void => {
 export const gLogger: Logger = {
   info: (label, data) => console.info(label, data),
   debug: (label, data) => {
-    if (config().gas('debug')) console.log(label, data)
+    if (config.gas('debug') === 'true') console.log(label, data)
   },
   warn: (label, data) => console.warn(label, data),
   error: (label, data) => console.error(label, data),
@@ -179,9 +171,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
     // DataRangeが1行より多い場合、データはあると判断
     if (this.sheet.getDataRange().getValues().length > 1) {
       const oldVersion = this.sheet.getRange(1, 1, 1, 1).getValue()
-      const oldSheet = this.sheet.copyTo(
-        SpreadsheetApp.openById(this.spreadsheetId)
-      )
+      const oldSheet = this.sheet.copyTo(SpreadsheetApp.openById(this.spreadsheetId))
       const oldName = oldSheet.getName().replace(' のコピー', ' old' + oldVersion)
       oldSheet.setName(oldName)
       this.sheet.clear()

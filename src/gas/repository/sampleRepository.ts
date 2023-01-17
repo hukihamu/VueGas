@@ -1,12 +1,12 @@
 import { BaseRepository, InitEntity } from '@l/gas'
 import { SampleEntity } from '@g/entity/sampleEntity'
-import { config } from '@l/common'
-import { GConfig } from '@g/gConfig'
+import { config, throwMsg } from '@l/common'
+import { ConfigType } from '@c/config'
 
 export class SampleRepository extends BaseRepository<SampleEntity> {
   constructor() {
     // spreadsheetId
-    super(config<GConfig>().gas('spreadsheetId'), 'SAMPLE_TABLE')
+    super(config.gas<ConfigType>('spreadsheetId') ?? throwMsg('spreadsheetId not found'), 'SAMPLE_TABLE')
   }
   protected readonly tableVersion: number = 2
   protected readonly initData: InitEntity<SampleEntity>[] = [

@@ -33,9 +33,18 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
 2. GoogleDrive上にAppsScriptを用意する
 3. `AppsScript > Projectの設定 > スクリプトID` を `.clasp.json > scriptId` に設定する  
   (`.clasp.json.template`をコピーして作成)
-4. `public/config.html`に必要な値を設定  
-  (`config.html.template`をコピーして作成)
+4. `AppsScript > Projectの設定 > スクリプト プロパティ`に必要な値を設定  
 5. `push-clasp:prod`を実行  
    (開発しながらの場合は `watch` 、Pushのみは `push-clasp` )
 ## サンプル説明
 適時追記
+
+## Issue
+- Web Socketもどき案
+  - script.runを動かす
+  - Socket用ssでフラグを有効化
+  - repositoryのcad時でSocket用ss変更
+  - 変化があるまでwait(1s)
+  - 変化があればreturn
+  - 変化がなければtimeout前にreturn
+  - 止めるときはSocket用ssのフラグを無効化

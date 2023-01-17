@@ -59,7 +59,6 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { from: Path.resolve(__dirname, 'public/appsscript.json'), to: '' },
-        { from: Path.resolve(__dirname, 'public/config.html'), to: '' },
       ],
     }),
     new CleanWebpackPlugin({

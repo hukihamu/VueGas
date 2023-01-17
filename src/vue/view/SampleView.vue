@@ -3,13 +3,13 @@ import { ref } from 'vue'
 import { ControllerTypes } from '@c/controllerTypes'
 import { gasClient } from '@l/vue'
 import { config } from '@l/common'
-import { VConfig } from '@v/vConfig'
+import { ConfigType } from '@c/config'
 const sampleText = ref('')
 gasClient
   .use<ControllerTypes>()
   .send('sample')
   .then(it => {
-    sampleText.value = it.text + it.sample + config<VConfig>().vue('vueConfig')
+    sampleText.value = it.text + it.sample + config.vue<ConfigType>('vueConfig')
   })
 </script>
 
