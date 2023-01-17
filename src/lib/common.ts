@@ -5,6 +5,17 @@ export interface BaseControllerTypes {
   }
 }
 
+export type BaseObserverArg = {
+  // 3分以下
+  intervalMSec: number
+}
+export interface BaseObserverTypes {
+  [name: string]: {
+    argType: BaseObserverArg
+    returnType?: unknown
+  }
+}
+
 export interface Logger {
   info: (label: string, data: any) => void
   debug: (label: string, data: any) => void

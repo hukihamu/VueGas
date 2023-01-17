@@ -1,11 +1,21 @@
-import { BaseControllerTypes, config, ConfigKeysType, Logger } from '@l/common'
+import { BaseControllerTypes, BaseObserverTypes, config, ConfigKeysType, Logger } from '@l/common'
+
+/**
+ * initGlobalサンプル
+ * ``` ts
+ * (global, convertController) => {
+ *   global.sample = convertController(sampleController)
+ *   return global
+ * }
+ * ```
+ */
 export const initGas = <C extends BaseControllerTypes>(
   title: string,
   keys: ConfigKeysType,
   initGlobal: (
-    global: { [name in keyof C]: GlobalController },
-    convertController: (controller: Controller<C, any>) => GlobalController
-  ) => { [name in keyof C]: GlobalController }
+    global: { [name in keyof C]: GlobalFunction },
+    convertController: (controller: Controller<C, any>) => GlobalFunction
+  ) => { [name in keyof C]: GlobalFunction }
 ): InitGasOption => {
   global.doGet = (): GoogleAppsScript.HTML.HtmlOutput => {
     const vueConfig = {}
@@ -32,10 +42,37 @@ export const initGas = <C extends BaseControllerTypes>(
   return initGasOption
 }
 const initGasOption: InitGasOption = {
-  useSpreadsheetDB: (...repositoryList: { new (): BaseRepository<any> }[]) => {
+  useSpreadsheetDB: (...repositoryList: { new(): BaseRepository<any> }[]) => {
     for (const repository of repositoryList) {
       new repository().initTable()
     }
+    return initGasOption
+  },
+  useObserver: initGlobal => {
+    initGlobal(global as any, observer => {
+      return async (arg: any) => {
+        try {
+          gLogger.debug('arg: ', arg)
+          if (arg === 'stop') {
+            return observer.stop()
+          } else {
+            const returnValue = await observer.observe(arg)
+            gLogger.debug('return: ', returnValue)
+            return JSON.stringify(returnValue)
+          }
+        } catch (e) {
+          gLogger.error('Observerエラー:', e)
+          throw e
+        }
+      }
+    })
+    return initGasOption
+  },
+  useTrigger: initGlobal => {
+    initGlobal(global as any, (name, fun, spreadsheetId) => {
+      ScriptApp.newTrigger(name).forSpreadsheet(SpreadsheetApp.openById(spreadsheetId)).onEdit().create()
+      return fun
+    })
     return initGasOption
   },
 }
@@ -43,11 +80,57 @@ const initGasOption: InitGasOption = {
 export type Controller<C extends BaseControllerTypes, K extends keyof C> = (
   arg?: C[K]['argType']
 ) => Promise<C[K]['returnType']>
+export type Observer<O extends BaseObserverTypes, K extends keyof O> = {
+  // @return 'STOP' => observer stop
+  observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP'>
+  stop: () => void
+}
 
 interface InitGasOption {
-  useSpreadsheetDB: (...repository: { new (): BaseRepository<any> }[]) => InitGasOption
+  useSpreadsheetDB: (...repository: { new(): BaseRepository<any> }[]) => InitGasOption
+  useObserver: <O extends BaseObserverTypes>(
+    initGlobal: (
+      global: { [name in keyof O]: GlobalFunction },
+      convertObserver: (controller: Observer<O, any>) => GlobalFunction
+    ) => { [name in keyof O]: GlobalFunction }
+  ) => InitGasOption
+  useTrigger: (
+    initGlobal: (
+      global: { [name: string]: (e: unknown) => void },
+      convertTrigger: (name: string, fun: (e: unknown) => void, spreadsheetId: string) => (e: unknown) => void
+    ) => { [name: string]: (e: unknown) => void }
+  ) => InitGasOption
 }
-type GlobalController = (args: unknown) => Promise<unknown>
+
+type GlobalFunction = (args: unknown) => Promise<unknown>
+
+const OBSERVE_PROPERTY_KEY = 'OBSERVE'
+type ObserverFlag = 'STOP' | 'UPDATE' | 'NONE'
+export const observer = {
+  observe: async <K extends string>(key: K, intervalMSec: number): Promise<ObserverFlag> => {
+    const startDate = Date.now()
+    PropertiesService.getUserProperties().setProperty(key, 'observe')
+    while (Date.now() - startDate < 180000) {
+      const property = JSON.parse(PropertiesService.getScriptProperties().getProperty(OBSERVE_PROPERTY_KEY) ?? '{}')
+      if (property[key] && property[key] > startDate) {
+        return 'UPDATE'
+      }
+      if (!PropertiesService.getUserProperties().getProperty(key)) {
+        return 'STOP'
+      }
+      sleep(intervalMSec)
+    }
+    return 'NONE'
+  },
+  onUpdateEvent: <K extends string>(key: K) => {
+    const property = JSON.parse(PropertiesService.getScriptProperties().getProperty(OBSERVE_PROPERTY_KEY) ?? '{}')
+    property[key] = Date.now()
+    PropertiesService.getScriptProperties().setProperty(OBSERVE_PROPERTY_KEY, JSON.stringify(property))
+  },
+  stop: <K extends string>(key: K) => {
+    PropertiesService.getUserProperties().deleteProperty(key)
+  },
+}
 
 export const getEmail = (): string => {
   return Session.getActiveUser().getEmail()
@@ -63,7 +146,7 @@ export const gLogger: Logger = {
     if (config.gas('debug') === 'true') console.log(label, data)
   },
   warn: (label, data) => console.warn(label, data),
-  error: (label, data) => console.error(label, data),
+  error: (label, data) => console.error(label, data)
 }
 
 export class GoogleDriveFolder {
@@ -89,6 +172,7 @@ export class GoogleDriveFolder {
   createFile(blob: GoogleAppsScript.Base.Blob): GoogleDriveFile {
     return new GoogleDriveFile(this.folder.createFile(blob))
   }
+
   getFiles(): GoogleDriveFile[] {
     const result: GoogleDriveFile[] = []
     const files = this.folder.getFiles()
@@ -97,6 +181,7 @@ export class GoogleDriveFolder {
     }
     return result
   }
+
   getFolders(): GoogleDriveFolder[] {
     const result: GoogleDriveFolder[] = []
     const folders = this.folder.getFolders()
@@ -105,9 +190,11 @@ export class GoogleDriveFolder {
     }
     return result
   }
+
   rename(newName: string): void {
     this.folder.setName(newName)
   }
+
   copyFromFile(fromFileId: string): void {
     const file = DriveApp.getFileById(fromFileId).makeCopy().moveTo(this.folder)
     file.setName(file.getName().replace(' のコピー', ''))
@@ -120,10 +207,12 @@ export class GoogleDriveFolder {
       files.next().moveTo(toFolder)
     }
   }
+
   trash(isTrash: boolean = true): void {
     this.folder.setTrashed(isTrash)
   }
 }
+
 export class GoogleDriveFile {
   private readonly file: GoogleAppsScript.Drive.File
 
@@ -139,11 +228,15 @@ export class GoogleDriveFile {
     DriveApp.getFileById(fileId).setTrashed(isTrash)
   }
 }
+
 export type InitEntity<E extends BaseEntity> = Omit<E, 'row'>
+
 export interface BaseEntity {
   row: number
 }
+
 type LockType = 'user' | 'script' | 'none'
+
 export abstract class BaseRepository<E extends BaseEntity> {
   private sheet: GoogleAppsScript.Spreadsheet.Sheet
   private static readonly TABLE_VERSION_LABEL = 'ver:'
@@ -159,6 +252,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
   protected constructor(spreadsheetId: string, tableName: string) {
     this.spreadsheetId = spreadsheetId
     // シートの取得(作成)
+
     const spreadsheet = SpreadsheetApp.openById(spreadsheetId)
     const sheet = spreadsheet.getSheetByName(tableName)
     this.sheet = sheet ? sheet : spreadsheet.insertSheet().setName(tableName)
@@ -167,6 +261,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
   private checkVersionUpdated(): boolean {
     return this.sheet.getRange(1, 1, 1, 1).getValue() !== BaseRepository.TABLE_VERSION_LABEL + this.tableVersion
   }
+
   private createTable(): void {
     // DataRangeが1行より多い場合、データはあると判断
     if (this.sheet.getDataRange().getValues().length > 1) {
@@ -185,6 +280,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
       this.insert(e)
     }
   }
+
   private toStringList(entity: E | InitEntity<E>): string[] {
     const result: string[] = []
     result.push(BaseRepository.ROW_FUNCTION)
@@ -194,9 +290,10 @@ export abstract class BaseRepository<E extends BaseEntity> {
     }
     return result
   }
+
   private toEntity(stringList: string[]): E {
     const entity: any = {
-      row: stringList[0],
+      row: stringList[0]
     }
 
     for (let i = 1; i < stringList.length; i++) {
@@ -205,9 +302,11 @@ export abstract class BaseRepository<E extends BaseEntity> {
     }
     return entity as E
   }
+
   private getRowRange(rowNumber: number): GoogleAppsScript.Spreadsheet.Range {
     return this.sheet.getRange(rowNumber, 1, 1, this.columnList.length + 1)
   }
+
   private onLock<R>(runningInLock: () => R): R {
     if (this.lockType === 'none') return runningInLock()
     const lock = this.lockType === 'user' ? LockService.getUserLock() : LockService.getScriptLock()
@@ -220,11 +319,13 @@ export abstract class BaseRepository<E extends BaseEntity> {
       lock.releaseLock()
     }
   }
+
   initTable(): void {
     if (this.checkVersionUpdated()) {
       this.createTable()
     }
   }
+
   insert(entity: E | InitEntity<E>): void {
     this.onLock(() => {
       let insertRowNumber = -1
@@ -245,6 +346,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
       }
     })
   }
+
   getAll(): E[] {
     return this.onLock(() => {
       const values = this.sheet.getRange(2, 1, this.sheet.getLastRow() - 1, this.columnList.length + 1).getValues()
@@ -257,17 +359,20 @@ export abstract class BaseRepository<E extends BaseEntity> {
       return entities
     })
   }
+
   getByRow(row: number): E {
     return this.onLock(() => {
       const stringList = this.getRowRange(row).getValues()[0]
       return this.toEntity(stringList)
     })
   }
+
   update(entity: E): void {
     this.onLock(() => {
       this.getRowRange(entity.row).setValues([this.toStringList(entity)])
     })
   }
+
   delete(row: number): void {
     this.onLock(() => {
       const range = this.getRowRange(row)
