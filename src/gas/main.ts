@@ -17,7 +17,7 @@ initGas<ControllerTypes>('SampleTitle', configKeys, (global, convertController) 
     return global
   })
   .useTrigger((global, createTrigger) => {
-    global.onSpreadsheetEdit = createTrigger('onSpreadsheetEdit', () =>{observer.onUpdateEvent('sample')}, triggerBuilder => {
+    global.onSpreadsheetEdit = createTrigger('onSpreadsheetEdit', onSpreadsheetEdit, triggerBuilder => {
       return triggerBuilder
         .forSpreadsheet(
           SpreadsheetApp.openById(config.gas<ConfigType>('spreadsheetId') ?? throwMsg('spreadsheetId not found'))
@@ -26,3 +26,7 @@ initGas<ControllerTypes>('SampleTitle', configKeys, (global, convertController) 
     })
     return global
   })
+
+const onSpreadsheetEdit = () => {
+  observer.onUpdateEvent('sample')
+}

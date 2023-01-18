@@ -8,7 +8,7 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
   - **gas.ts**(gas専用`import { } from '@l/gas'`)
   - **vue.ts**(vue専用`import { } from '@l/vue'`)
 - **_public_**(distにコピーされるファイル郡)
-  - **appsscript.json**(gas設定ファイル)
+  - **appsscript.json**(gas設定ファイル `webapp/access` => `MYSELF` or `ANYONE` or `DOMAIN`)
   - **index.html**(vue(client側)基盤ファイル)
 - **_src_**
   - **_common_**(gas・vue共通利用ソース)
@@ -37,8 +37,29 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
    (開発しながらの場合は `watch` 、Pushのみは `push-clasp` )
 ## サンプル説明
 適時追記
+### 画面を作成
 
+### ルーティング
+
+### GASと通信
+
+#### Controller
+
+#### Observer
+
+### スクリプトプロパティを利用
+
+### Spreadsheetなどのイベントを検出
+
+### 永続的なストレージ(Spreadsheet)を利用する
+
+### 便利機能を利用する
+#### Logger
+#### gas - getEmail
+#### gas - sleep
+### 追加インストール
+- vuetify => マテリアルなVueを作成
+- pinia => vue内のデータ共有
 ## Issue
-- Triggerの幅を持たせる
 - unit test
 - readme追記

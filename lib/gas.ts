@@ -1,4 +1,5 @@
-import { BaseControllerTypes, BaseObserverTypes, config, ConfigKeysType, Logger } from '@l/common'
+import { BaseControllerTypes, BaseObserverTypes, config, ConfigKeysType, Logger, throwMsg } from '@l/common'
+import { ConfigType } from '@c/config'
 
 /**
  * initGlobalサンプル
@@ -69,15 +70,21 @@ const initGasOption: InitGasOption = {
     return initGasOption
   },
   useTrigger: initGlobal => {
+    const triggerList: TriggerBuilder[] = []
     initGlobal(global as any, (name, fun, createTrigger) => {
-      for (const trigger of ScriptApp.getScriptTriggers()) {
+      for (const trigger of ScriptApp.getProjectTriggers()) {
         if (trigger.getHandlerFunction() === name) {
-          return fun[0]
+          return fun
         }
       }
-      createTrigger(ScriptApp.newTrigger(name)).create()
-      return fun[0]
+      triggerList.push(createTrigger(ScriptApp.newTrigger(name)))
+      return fun
     })
+    global.initTrigger = () => {
+      for (const trigger of triggerList) {
+        trigger.create()
+      }
+    }
     return initGasOption
   },
 }
@@ -90,6 +97,7 @@ export type Observer<O extends BaseObserverTypes, K extends keyof O> = {
   observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP'>
   stop: () => void
 }
+type TriggerBuilder = GoogleAppsScript.Script.CalendarTriggerBuilder | GoogleAppsScript.Script.SpreadsheetTriggerBuilder | GoogleAppsScript.Script.DocumentTriggerBuilder | GoogleAppsScript.Script.FormTriggerBuilder
 
 interface InitGasOption {
   useSpreadsheetDB: (...repository: { new(): BaseRepository<any> }[]) => InitGasOption
@@ -107,7 +115,7 @@ interface InitGasOption {
         fun: (e: unknown) => void,
         createTrigger: (
           builder: GoogleAppsScript.Script.TriggerBuilder
-        ) => GoogleAppsScript.Script.CalendarTriggerBuilder | GoogleAppsScript.Script.SpreadsheetTriggerBuilder | GoogleAppsScript.Script.DocumentTriggerBuilder | GoogleAppsScript.Script.FormTriggerBuilder
+        ) => TriggerBuilder
       ) => (e: unknown) => void
     ) => { [name: string]: (e: unknown) => void }
   ) => InitGasOption
