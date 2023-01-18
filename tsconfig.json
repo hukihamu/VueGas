@@ -14,7 +14,7 @@
       "@c/*": ["src/common/*"],
       "@g/*": ["src/gas/*"],
       "@v/*": ["src/vue/*"],
-      "@l/*": ["src/lib/*"]
+      "@l/*": ["lib/*"]
     },
     "types": [
       "google-apps-script"
@@ -26,7 +26,9 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "lib/**/*.ts",
+    "lib/**/*.vue"
   ],
   "exclude": [
     "node_modules"

@@ -69,9 +69,14 @@ const initGasOption: InitGasOption = {
     return initGasOption
   },
   useTrigger: initGlobal => {
-    initGlobal(global as any, (name, fun, spreadsheetId) => {
-      ScriptApp.newTrigger(name).forSpreadsheet(SpreadsheetApp.openById(spreadsheetId)).onEdit().create()
-      return fun
+    initGlobal(global as any, (name, fun, createTrigger) => {
+      for (const trigger of ScriptApp.getScriptTriggers()) {
+        if (trigger.getHandlerFunction() === name) {
+          return fun[0]
+        }
+      }
+      createTrigger(ScriptApp.newTrigger(name)).create()
+      return fun[0]
     })
     return initGasOption
   },
@@ -97,7 +102,13 @@ interface InitGasOption {
   useTrigger: (
     initGlobal: (
       global: { [name: string]: (e: unknown) => void },
-      convertTrigger: (name: string, fun: (e: unknown) => void, spreadsheetId: string) => (e: unknown) => void
+      convertTrigger: (
+        name: string,
+        fun: (e: unknown) => void,
+        createTrigger: (
+          builder: GoogleAppsScript.Script.TriggerBuilder
+        ) => GoogleAppsScript.Script.CalendarTriggerBuilder | GoogleAppsScript.Script.SpreadsheetTriggerBuilder | GoogleAppsScript.Script.DocumentTriggerBuilder | GoogleAppsScript.Script.FormTriggerBuilder
+      ) => (e: unknown) => void
     ) => { [name: string]: (e: unknown) => void }
   ) => InitGasOption
 }
