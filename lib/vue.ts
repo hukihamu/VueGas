@@ -1,15 +1,18 @@
 import { RouteRecordRaw, createRouter, createWebHistory, Router } from 'vue-router'
 import { createApp, Ref } from 'vue'
 import { createPinia } from 'pinia'
+import { createVuetify, VuetifyOptions } from 'vuetify'
 import App from '@l/App.vue'
 import { BaseControllerTypes, BaseObserverTypes } from '@l/common'
+import { components, directives } from '@l/vuetify'
 
-export const initVue = (routes: RouteRecordRaw[]) => {
+
+export const initVue = (routes: RouteRecordRaw[], vuetifyOptions: VuetifyOptions = {components, directives}) => {
   router = createRouter({
     history: createWebHistory(),
     routes,
   })
-  createApp(App).use(router).use(createPinia()).mount('#app')
+  createApp(App).use(router).use(createPinia()).use(createVuetify(vuetifyOptions)).mount('#app')
 }
 export let router: Router
 
@@ -22,8 +25,7 @@ function setControllerTypes<C extends BaseControllerTypes>(): GasControllerClien
       return new Promise<C[K]['returnType']>((resolve, reject) => {
         google.script.run
           .withSuccessHandler(it => resolve(JSON.parse(it)))
-          .withFailureHandler(error => reject(error))
-          [name as string](arg)
+          .withFailureHandler(error => reject(error))[name as string](arg)
       })
     },
   }
@@ -45,8 +47,7 @@ function setObserverTypes<C extends BaseObserverTypes>(): GasObserverClient<C> {
         result = await new Promise<C[K]['returnType']>((resolve, reject) => {
           google.script.run
             .withSuccessHandler(it => resolve(JSON.parse(it)))
-            .withFailureHandler(error => reject(error))
-            [name as string](arg)
+            .withFailureHandler(error => reject(error))[name as string](arg)
         })
       }
       return

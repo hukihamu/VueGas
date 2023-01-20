@@ -5,6 +5,7 @@ import { gasClient } from '@l/vue'
 import { config } from '@l/common'
 import { ConfigType } from '@c/config'
 import { ObserverType } from '@c/observerType'
+
 const sampleText = ref('')
 gasClient
   .controller<ControllerTypes>()
@@ -19,15 +20,23 @@ const onStart = () => {
 const onStop = () => {
   gasClient.observer<ObserverType>().stop('sampleObserver')
 }
+const observeToggle = ref(1)
 </script>
 
 <template>
-  <span>{{ sampleText }}</span>
-  <div>
-    <button @click="onStart">start</button>
-    <span>{{ observeText }}</span>
-    <button @click="onStop">stop</button>
-  </div>
+  <v-app>
+    <v-main>
+      <v-container>
+        <div>{{ sampleText }}</div>
+        <v-btn @click="onStart">
+          start
+        </v-btn>
+        <v-btn @click="onStop">
+          stop
+        </v-btn>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <style scoped></style>

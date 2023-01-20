@@ -7,23 +7,8 @@
   "extends": [
     "eslint:recommended",
     "plugin:vue/vue3-recommended",
-    "@vue/typescript",
-    "plugin:prettier/recommended"
+    "@vue/typescript"
   ],
   "rules": {
-    "camelcase": "error",
-    "semi": ["error", "never"],
-    "@typescript-eslint/no-require-imports": "warn",
-    "@typescript-eslint/no-extra-non-null-assertion": "error",
-    "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "error",
-    "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
-    "prettier/prettier": [
-      "warn",
-      {
-        "singleQuote": true,
-        "semi": false,
-        "arrowParens": "avoid"
-      }
-    ]
   }
 }

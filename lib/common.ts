@@ -52,4 +52,3 @@ export const config = {
 export const throwMsg = (msg: string): never => {
   throw msg
 }
-

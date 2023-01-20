@@ -28,33 +28,62 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
 - **.clasp.json**(push先gasの指定ファイル)
 - **.clasp.json.template**(push先gasの指定ファイルの雛形 Copy・Renameして利用)
 ## 公開手順
-1. `init-clasp` を実行し、Googleアカウントと紐づける(初回のみ)
-2. GoogleDrive上にAppsScriptを用意する
-3. `AppsScript > Projectの設定 > スクリプトID` を `.clasp.json > scriptId` に設定する  
+1. AppsScriptの設定から、GoogleAppsScriptAPIを許可
+2. `npm install`を実行
+3. `init-clasp` を実行し、Googleアカウントと紐づける(初回のみ)
+4. GoogleDrive上にAppsScriptを用意する
+5. `AppsScript > Projectの設定 > スクリプトID` を `.clasp.json > scriptId` に設定する  
   (`.clasp.json.template`をコピーして作成)
-4. `AppsScript > Projectの設定 > スクリプト プロパティ`に必要な値を設定  
-5. `push-clasp:prod`を実行  
+6. `AppsScript > Projectの設定 > スクリプト プロパティ`に必要な値を設定  
+7. `push-clasp:prod`を実行  
    (開発しながらの場合は `watch` 、Pushのみは `push-clasp` )
 ## サンプル説明
 適時追記
 ### 画面を作成
+- src/vue/SampleVue.vue
+- `<script lang="ts" setup>`必須
+- script内の変数をtemplate内で利用可能(return不要)
+- 他仕様はVueのreferences参照
 
 ### ルーティング
-
+- main.ts の initVueにて、ルーティングを設定する
+- ルーティングは`@l/vue/router`で行う
+- 他仕様はVue-Routerのreferences参照
 ### GASと通信
-
+- common上にControllerTypesを用意する
+- Gas側は、Controllerの用意する。
+- 用意したControllerをinitGas(第3引数)で適用する
+``` ts
+(global, convertController) => {
+  global.sample = convertController(sampleController)
+  return global
+}
+```
+- Vue側は、gasClientを利用する
+  `gasClient.controller<ControllerTypes>().send('').then`
 #### Controller
+- 型は`Controller<ControllerTypes, ''>`とする
 
 #### Observer
 
 ### スクリプトプロパティを利用
-
-### Spreadsheetなどのイベントを検出
+- AppsScriptのプロパティに値を設定
+- common/config.tsに登録したkey値を設定
+  - common, gas, vueの3種のスコープ(commonは両方共通)
+  - ConfigTypeを作成
+- 利用時は`config.vue or gas<ConfigType>('')`
 
 ### 永続的なストレージ(Spreadsheet)を利用する
+- テーブル(entity)を作成
+  - BaseEntityを継承
+- リポジトリーを作成
+  - BaseRepositoryを継承
+- gasInit.useSpreadsheetDBにリポジトリを登録
+- 利用時は、リポジトリのインスタンスを生成する
 
 ### 便利機能を利用する
 #### Logger
+#### throwMsg
 #### gas - getEmail
 #### gas - sleep
 ### 追加インストール

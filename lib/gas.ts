@@ -1,5 +1,4 @@
-import { BaseControllerTypes, BaseObserverTypes, config, ConfigKeysType, Logger, throwMsg } from '@l/common'
-import { ConfigType } from '@c/config'
+import { BaseControllerTypes, BaseObserverTypes, config, ConfigKeysType, Logger } from '@l/common'
 
 /**
  * initGlobalサンプル
@@ -43,7 +42,7 @@ export const initGas = <C extends BaseControllerTypes>(
   return initGasOption
 }
 const initGasOption: InitGasOption = {
-  useSpreadsheetDB: (...repositoryList: { new(): BaseRepository<any> }[]) => {
+  useSpreadsheetDB: (...repositoryList: { new (): BaseRepository<any> }[]) => {
     for (const repository of repositoryList) {
       new repository().initTable()
     }
@@ -69,24 +68,6 @@ const initGasOption: InitGasOption = {
     })
     return initGasOption
   },
-  useTrigger: initGlobal => {
-    const triggerList: TriggerBuilder[] = []
-    initGlobal(global as any, (name, fun, createTrigger) => {
-      for (const trigger of ScriptApp.getProjectTriggers()) {
-        if (trigger.getHandlerFunction() === name) {
-          return fun
-        }
-      }
-      triggerList.push(createTrigger(ScriptApp.newTrigger(name)))
-      return fun
-    })
-    global.initTrigger = () => {
-      for (const trigger of triggerList) {
-        trigger.create()
-      }
-    }
-    return initGasOption
-  },
 }
 
 export type Controller<C extends BaseControllerTypes, K extends keyof C> = (
@@ -97,27 +78,14 @@ export type Observer<O extends BaseObserverTypes, K extends keyof O> = {
   observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP'>
   stop: () => void
 }
-type TriggerBuilder = GoogleAppsScript.Script.CalendarTriggerBuilder | GoogleAppsScript.Script.SpreadsheetTriggerBuilder | GoogleAppsScript.Script.DocumentTriggerBuilder | GoogleAppsScript.Script.FormTriggerBuilder
 
 interface InitGasOption {
-  useSpreadsheetDB: (...repository: { new(): BaseRepository<any> }[]) => InitGasOption
+  useSpreadsheetDB: (...repository: { new (): BaseRepository<any> }[]) => InitGasOption
   useObserver: <O extends BaseObserverTypes>(
     initGlobal: (
       global: { [name in keyof O]: GlobalFunction },
       convertObserver: (controller: Observer<O, any>) => GlobalFunction
     ) => { [name in keyof O]: GlobalFunction }
-  ) => InitGasOption
-  useTrigger: (
-    initGlobal: (
-      global: { [name: string]: (e: unknown) => void },
-      convertTrigger: (
-        name: string,
-        fun: (e: unknown) => void,
-        createTrigger: (
-          builder: GoogleAppsScript.Script.TriggerBuilder
-        ) => TriggerBuilder
-      ) => (e: unknown) => void
-    ) => { [name: string]: (e: unknown) => void }
   ) => InitGasOption
 }
 
@@ -165,7 +133,7 @@ export const gLogger: Logger = {
     if (config.gas('debug') === 'true') console.log(label, data)
   },
   warn: (label, data) => console.warn(label, data),
-  error: (label, data) => console.error(label, data)
+  error: (label, data) => console.error(label, data),
 }
 
 export class GoogleDriveFolder {
@@ -312,7 +280,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
 
   private toEntity(stringList: string[]): E {
     const entity: any = {
-      row: stringList[0]
+      row: stringList[0],
     }
 
     for (let i = 1; i < stringList.length; i++) {
