@@ -6,12 +6,18 @@ import App from '@l/App.vue'
 import { BaseControllerTypes, BaseObserverTypes } from '@l/common'
 import { components, directives } from '@l/vuetify'
 
-
+/**
+ *
+ * @param routes ルーティングの設定 初回はルート `/` へ遷移
+ * @param vuetifyOptions Vuetifyオプション テーマやブループリントの変更に利用
+ */
 export const initVue = (routes: RouteRecordRaw[], vuetifyOptions: VuetifyOptions = {components, directives}) => {
   router = createRouter({
     history: createWebHistory(),
     routes,
   })
+  if (!vuetifyOptions.components) vuetifyOptions.components = components
+  if (!vuetifyOptions.directives) vuetifyOptions.directives = directives
   createApp(App).use(router).use(createPinia()).use(createVuetify(vuetifyOptions)).mount('#app')
 }
 export let router: Router

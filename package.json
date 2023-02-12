@@ -40,27 +40,26 @@
     "@vue/eslint-config-typescript": "11.0.2"
   },
   "watch": {
-    "build-dev:gas": {
+    "build-prod:gas": {
       "patterns": [
         "src/gas",
         "src/common"
       ],
       "extensions": "ts"
     },
-    "build-dev:vue": {
+    "build-prod:vue": {
       "patterns": [
         "src/common",
         "src/vue",
-        "src/vue",
         "public"
       ],
-      "extensions": "ts,vue.html,json"
+      "extensions": "ts,vue,html,json"
     }
   },
   "scripts": {
     "init-clasp": "clasp login",
     "push-clasp": "clasp push",
-    "push-clasp:prod": "run-s build-prod push-clasp",
+    "push-clasp:build-prod": "run-s build-prod push-clasp",
 
     "build-prod:gas": "webpack --config webpack.config.gas.js --mode=production",
     "build-prod:vue": "webpack --config webpack.config.vue.js --mode=production",

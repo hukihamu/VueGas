@@ -6,7 +6,7 @@ import { configKeys } from '@c/config'
 import { ObserverType } from '@c/observerType'
 import { sampleObserver } from '@g/observer/sampleObserver'
 
-initGas<ControllerTypes>('SampleTitle', configKeys, (global, convertController) => {
+initGas<ControllerTypes>('VueGasSample', configKeys, (global, convertController) => {
   global.sample = convertController(sampleController)
   return global
 })
