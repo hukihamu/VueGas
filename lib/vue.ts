@@ -1,8 +1,8 @@
 import { RouteRecordRaw, createRouter, createWebHistory, Router } from 'vue-router'
-import { createApp, Ref } from 'vue'
+import { createApp, Ref, App } from 'vue'
 import { createPinia } from 'pinia'
 import { createVuetify, VuetifyOptions } from 'vuetify'
-import App from '@l/App.vue'
+import AppVue from '@l/App.vue'
 import { BaseControllerTypes, BaseObserverTypes } from '@l/common'
 import { components, directives } from '@l/vuetify'
 
@@ -10,15 +10,19 @@ import { components, directives } from '@l/vuetify'
  *
  * @param routes ルーティングの設定 初回はルート `/` へ遷移
  * @param vuetifyOptions Vuetifyオプション テーマやブループリントの変更に利用
+ * @param vueUse vueのcreateAppにuseを追加する
  */
-export const initVue = (routes: RouteRecordRaw[], vuetifyOptions: VuetifyOptions = {components, directives}) => {
+export const initVue = (routes: RouteRecordRaw[],
+                        vuetifyOptions: VuetifyOptions = {components, directives},
+                        vueUse: (app: App<Element>) => App<Element> = (app) => app) => {
   router = createRouter({
     history: createWebHistory(),
     routes,
   })
   if (!vuetifyOptions.components) vuetifyOptions.components = components
   if (!vuetifyOptions.directives) vuetifyOptions.directives = directives
-  createApp(App).use(router).use(createPinia()).use(createVuetify(vuetifyOptions)).mount('#app')
+  const app = createApp(AppVue).use(router).use(createPinia()).use(createVuetify(vuetifyOptions))
+  vueUse(app).mount('#app')
 }
 export let router: Router
 

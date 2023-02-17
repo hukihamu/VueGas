@@ -5,7 +5,7 @@ export interface BaseControllerTypes {
   }
 }
 
-export type BaseObserverArg = {
+type BaseObserverArg = {
   // 3分以下
   intervalMSec: number
 }

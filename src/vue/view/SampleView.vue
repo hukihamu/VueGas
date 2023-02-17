@@ -7,12 +7,6 @@ import { ConfigType } from '@c/config'
 import { ObserverType } from '@c/observerType'
 
 const sampleText = ref('')
-gasClient
-  .controller<ControllerTypes>()
-  .send('sample')
-  .then(it => {
-    sampleText.value = it.text + it.sample + config.vue<ConfigType>('vueConfig')
-  })
 const observeText = ref<string | undefined>('')
 const onStart = () => {
   gasClient.observer<ObserverType>().observe('sampleObserver', { intervalMSec: 100, text: 'lastUpdate: ' }, observeText)

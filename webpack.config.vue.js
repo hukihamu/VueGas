@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlInlineScriptWebpackPlugin = require('html-inline-script-webpack-plugin')
 const HtmlInlineCssWebpackPlugin = require('html-inline-css-webpack-plugin').default
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const { VuetifyPlugin } = require('webpack-plugin-vuetify')
 
@@ -54,6 +55,22 @@ module.exports = {
           }
         ]
       }
+    ]
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      `...`,
+      new CssMinimizerPlugin({
+        minimizerOptions: {
+          preset: [
+            "default",
+            {
+              discardComments: { removeAll: true },
+            },
+          ]
+        }
+      })
     ]
   },
   resolve: {

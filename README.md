@@ -35,36 +35,10 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
 5. `AppsScript > Projectの設定 > スクリプトID` を `.clasp.json > scriptId` に設定する  
   (`.clasp.json.template`をコピーして作成)
 6. `AppsScript > Projectの設定 > スクリプト プロパティ`に必要な値を設定  
-7. `push-clasp:prod`を実行  
+7. `push-clasp:build-prod`を実行  
    (開発しながらの場合は `watch` 、Pushのみは `push-clasp` )
-## サンプル説明
-適時追記
-### 画面を作成
-- src/vue/SampleVue.vue
-- `<script lang="ts" setup>`必須
-- script内の変数をtemplate内で利用可能(return不要)
-- 他仕様はVueのreferences参照
 
-### ルーティング
-- main.ts の initVueにて、ルーティングを設定する
-- ルーティングは`@l/vue/router`で行う
-- 他仕様はVue-Routerのreferences参照
-### GASと通信
-- common上にControllerTypesを用意する
-- Gas側は、Controllerの用意する。
-- 用意したControllerをinitGas(第3引数)で適用する
-``` ts
-(global, convertController) => {
-  global.sample = convertController(sampleController)
-  return global
-}
-```
-- Vue側は、gasClientを利用する
-  `gasClient.controller<ControllerTypes>().send('').then`
-#### Controller
-- 型は`Controller<ControllerTypes, ''>`とする
 
-#### Observer
 
 ### スクリプトプロパティを利用
 - AppsScriptのプロパティに値を設定
