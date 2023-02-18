@@ -1,14 +1,124 @@
 <script lang="ts" setup>
-import {} from 'vue'
+import { ref, watch} from 'vue'
+import { ObserverSampleReturnModel } from '@c/model/observerSampleReturnModel'
+import { gasClient } from '@l/vue'
+import { ObserverType } from '@c/observerType'
+import sendController from '@v/util/sendController'
+
+const toggleIndex = ref(1)
+const userToken = Date.now().toString()
+const configName = 'observerSampleText'
+const text = ref('')
+const isLoading = ref(false)
+const observeEvent = ref<ObserverSampleReturnModel>({value: '', timestamp: ''})
+watch(toggleIndex, newValue => {
+  switch (newValue) {
+    case 0 :
+      gasClient.observer<ObserverType>().observe(
+        'observerSample',
+        {intervalMSec: 1000, model: {configName, userToken }},
+        observeEvent)
+      break
+    case 1:
+      gasClient.observer<ObserverType>().stop('observerSample', userToken)
+      break
+  }
+})
+const onClickRequest = () => {
+  isLoading.value = true
+  sendController('setConfig', {configName, text: text.value}).then(() => {
+    isLoading.value = false
+  })
+}
 
 const observerTypeSample = `// /src/common/observerType.ts
+import { BaseObserverTypes } from '@l/common'
+import { ObserverSampleReturnModel } from '@c/model/observerSampleReturnModel'
+
+export interface ObserverType extends BaseObserverTypes {
+  observerSample: {
+    argType: {
+      intervalMSec: number
+      model: ObserverSampleArgsModel
+    }
+    returnType: ObserverSampleReturnModel
+  }
+}
 `
 const observerSample = `// /src/gas/observer/sampleObserver.ts
-`
-const eventSample = ` // /src/gas/controller/sampleEventController.ts
-`
+import { observer, Observer } from '@l/gas'
+import { ObserverType } from '@c/observerType'
+
+export const sampleObserver: Observer&lt;ObserverType, 'observerSample'> = {
+  useObserver: async arg => {
+    // 1ユーザ内でもイベントを分けたいため、keyを一意としeventKeyを利用
+    const event = await observer.useObserver('sample_' + arg.model.userToken, arg.intervalMSec, 'sampleEvent')
+    switch (event) {
+      case 'UPDATE':
+        return {
+          timestamp: new Date().toLocaleString('ja-JP'),
+          value: PropertiesService.getScriptProperties().getProperty(arg.model.configName) ?? ''
+        }
+        // 'NONE', 'STOP' 時必要な処理はないためそのままreturn
+      default:
+        return event
+    }
+  },
+  stop: (key) => {
+    // 1ユーザ内でもイベントを分けたいため、eventKeyを利用
+    observer.stop('sample_' + key)
+  },
+}
+
+`.replaceAll('&lt;', '<')
+const eventSample = ` // /src/gas/controller/setConfig.ts
+export const setConfig: Controller&lt;ControllerTypes, 'setConfig'> = async (arg) => {
+  if (!arg) throw 'setConfigでエラーが発生'
+  PropertiesService.getScriptProperties().setProperty(arg.configName, arg.text)
+  observer.onUpdateEvent('sampleEvent')
+}
+`.replaceAll('&lt;', '<')
 const mainSample = `// /src/gas/main.ts
-`
+initGas(/*省略*/)
+  .useObserver&lt;ObserverType>((global, convertObserver) => {
+    global.observerSample = convertObserver(sampleObserver)
+    return global
+  })
+`.replaceAll('&lt;', '<')
+const vueSample = `// /src/vue/view/sample/ObserverView.vue
+import { ref, watch} from 'vue'
+import { ObserverSampleReturnModel } from '@c/model/observerSampleReturnModel'
+import { gasClient } from '@l/vue'
+import { ObserverType } from '@c/observerType'
+
+const toggleIndex = ref(1)
+const userToken = Date.now().toString()
+const configName = 'observerSampleText'
+const observeEvent = ref&lt;ObserverSampleReturnModel>({value: '', timestamp: ''})
+watch(toggleIndex, newValue => {
+  switch (newValue) {
+    case 0 :
+      gasClient.observer&lt;ObserverType>().observe(
+        'observerSample',
+        {intervalMSec: 1000, model: {configName, userToken }},
+        observeEvent)
+      break
+    case 1:
+      gasClient.observer&lt;ObserverType>().stop('observerSample', userToken)
+      break
+  }
+})
+`.replaceAll('&lt;', '<')
+const wrapperVue = `// /src/vue/util/useObserve.ts
+const useObserve = {
+  start: &lt;T extends keyof ObserverType>(name: Exclude&lt;T, ''>, arg: ObserverType[T]['argType'], ref: Ref&lt;ObserverType[T]['returnType']>) => {
+    gasClient.observer&lt;ObserverType>().observe(name, arg, ref).then()
+  },
+  stop: &lt;T extends keyof ObserverType>(name: Exclude&lt;T, ''>, key?: string) => {
+    gasClient.observer&lt;ObserverType>().stop(name, key)
+  }
+}
+`.replaceAll('&lt;', '<')
 </script>
 
 <template>
@@ -18,7 +128,8 @@ const mainSample = `// /src/gas/main.ts
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            サーバ(gas)側で作成したイベントを検出しクライアント(vue)へイベント通知を送ることが可能
+            サーバ(gas)側で作成したイベントを検出しクライアント(vue)へイベント通知を送ることが可能<br>
+            他ユーザや同一ユーザの別タブなどの操作をまとめて検出できる
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
@@ -26,19 +137,31 @@ const mainSample = `// /src/gas/main.ts
             動作確認:
             <v-container fluid>
               <v-row align="stretch" justify="center">
-                <v-col cols="3">
-                  <v-text-field v-model.number="num1" type="number" :rules="numberRule" :loading="isLoading" />
+                <v-col align-self="center">
+                  <v-btn-toggle v-model="toggleIndex" mandatory>
+                    <v-btn>
+                      イベント検出開始
+                    </v-btn>
+                    <v-btn>
+                      イベント検出終了
+                    </v-btn>
+                  </v-btn-toggle>
                 </v-col>
-                <v-col cols="1" align-self="center">
-                  +
-                </v-col>
-                <v-col cols="3">
-                  <v-text-field v-model.number="num2" type="number" :rules="numberRule" :loading="isLoading" />
+                <v-col>
+                  <v-text-field v-model="text" :loading="isLoading" />
                 </v-col>
                 <v-col align-self="center">
                   <v-btn :loading="isLoading" @click="onClickRequest">
-                    リクエスト
+                    イベント発生
                   </v-btn>
+                </v-col>
+              </v-row>
+              <v-row align="stretch" justify="center">
+                <v-col align-self="center">
+                  取得テキスト: {{ observeEvent.value }}
+                </v-col>
+                <v-col align-self="center">
+                  取得時間: {{ observeEvent.timestamp }}
                 </v-col>
               </v-row>
             </v-container>
@@ -109,5 +232,7 @@ const mainSample = `// /src/gas/main.ts
 </template>
 
 <style scoped>
-
+.code {
+  white-space: pre-wrap;
+}
 </style>

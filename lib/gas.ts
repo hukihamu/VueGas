@@ -53,8 +53,8 @@ const initGasOption: InitGasOption = {
       return async (arg: any) => {
         try {
           gLogger.debug('arg: ', arg)
-          if (arg === 'stop') {
-            return observer.stop()
+          if (!arg || typeof arg === 'string') {
+            return observer.stop(arg)
           } else {
             const returnValue = await observer.observe(arg)
             gLogger.debug('return: ', returnValue)
@@ -74,9 +74,12 @@ export type Controller<C extends BaseControllerTypes, K extends keyof C> = (
   arg?: C[K]['argType']
 ) => Promise<C[K]['returnType']>
 export type Observer<O extends BaseObserverTypes, K extends keyof O> = {
-  // @return 'STOP' => observer stop
+  /**
+   *
+   * @return 'STOP': イベント検出終了, 'NONE': イベント続行(イベントなし), O[K]['returnType']: イベント続行(イベントあり)
+   */
   observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP' | 'NONE'>
-  stop: () => void
+  stop: (key: string | undefined) => void
 }
 
 interface InitGasOption {
@@ -93,34 +96,41 @@ type GlobalFunction = (args: unknown) => Promise<unknown>
 
 const OBSERVE_PROPERTY_KEY = 'OBSERVE'
 /**
- * @var STOP イベント通知を終了する
- * @var NONE イベントが発生しないままタイムアウト
- * @var UPDATE 変更を検出
+ * STOP イベント通知を終了する<br>
+ * NONE イベントが発生しないままタイムアウト<br>
+ * UPDATE 変更を検出<br>
  */
 type ObserverFlag = 'STOP' | 'UPDATE' | 'NONE'
 export const observer = {
-  observe: async <K extends string>(key: K, intervalMSec: number): Promise<ObserverFlag> => {
+  /**
+   *
+   * @param key ユーザの継続・停止を検出するプロパティキー。デフォはイベント検出にも用いる(1ユーザ1key)
+   * @param intervalMSec 変更を検出する間隔。3分未満を設定
+   * @param eventKey keyとは別のeventを検出に利用する("executeAs": "USER_DEPLOYING"の時に利用)
+   */
+  observe: async (key: string, intervalMSec: number, eventKey?: string): Promise<ObserverFlag> => {
     const startDate = Date.now()
-    PropertiesService.getUserProperties().setProperty(key, 'observe')
+    if (intervalMSec > 180000) intervalMSec = 180000
     while (Date.now() - startDate < 180000) {
       const property = JSON.parse(PropertiesService.getScriptProperties().getProperty(OBSERVE_PROPERTY_KEY) ?? '{}')
-      if (property[key] && property[key] > startDate) {
+      if (property[eventKey ?? key] && property[eventKey ?? key] > startDate) {
         return 'UPDATE'
       }
-      if (!PropertiesService.getUserProperties().getProperty(key)) {
+      if (PropertiesService.getUserProperties().getProperty(key)) {
+        PropertiesService.getUserProperties().deleteProperty(key)
         return 'STOP'
       }
       sleep(intervalMSec)
     }
     return 'NONE'
   },
-  onUpdateEvent: <K extends string>(key: K) => {
+  onUpdateEvent: (eventKey: string) => {
     const property = JSON.parse(PropertiesService.getScriptProperties().getProperty(OBSERVE_PROPERTY_KEY) ?? '{}')
-    property[key] = Date.now()
+    property[eventKey] = Date.now()
     PropertiesService.getScriptProperties().setProperty(OBSERVE_PROPERTY_KEY, JSON.stringify(property))
   },
-  stop: <K extends string>(key: K) => {
-    PropertiesService.getUserProperties().deleteProperty(key)
+  stop: (key: string) => {
+    PropertiesService.getUserProperties().setProperty(key, 'STOP')
   },
 }
 

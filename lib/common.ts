@@ -5,14 +5,14 @@ export interface BaseControllerTypes {
   }
 }
 
-type BaseObserverArg = {
+type BaseObserverTypeArg = {
   // 3分以下
   intervalMSec: number
 }
 export interface BaseObserverTypes {
   [name: string]: {
-    argType: BaseObserverArg
-    returnType?: unknown
+    argType: BaseObserverTypeArg
+    returnType: unknown
   }
 }
 

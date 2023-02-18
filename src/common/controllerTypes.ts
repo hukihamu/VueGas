@@ -5,4 +5,11 @@ export interface ControllerTypes extends BaseControllerTypes {
     argType: ControllerSampleArgsModel
     returnType: ControllerSampleReturnModel
   }
+  setConfig: {
+    argType: {
+      configName: string
+      text: string
+    }
+    returnType: void
+  }
 }

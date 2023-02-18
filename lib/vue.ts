@@ -42,7 +42,13 @@ function setControllerTypes<C extends BaseControllerTypes>(): GasControllerClien
 }
 interface GasObserverClient<C extends Required<BaseObserverTypes>> {
   observe<K extends keyof C>(name: Exclude<K, ''>, arg: C[K]['argType'], ref: Ref<C[K]['returnType']>): Promise<void>
-  stop<K extends keyof C>(name: Exclude<K, ''>): void
+
+  /**
+   *
+   * @param name Observer名
+   * @param key stop時にユーザを特定するkey("executeAs": "USER_DEPLOYING"の際に利用)
+   */
+  stop<K extends keyof C>(name: Exclude<K, ''>, key?: string): void
 }
 function setObserverTypes<C extends BaseObserverTypes>(): GasObserverClient<C> {
   return {
@@ -62,8 +68,8 @@ function setObserverTypes<C extends BaseObserverTypes>(): GasObserverClient<C> {
       }
       return
     },
-    stop<K extends keyof C>(name: Exclude<K, ''>) {
-      google.script.run[name as string]('stop')
+    stop<K extends keyof C>(name: Exclude<K, ''>, key?: string) {
+      google.script.run[name as string](key)
     },
   }
 }
