@@ -176,6 +176,7 @@ const useObserve = {
         <v-list-item>
           <v-list-item-title>
             <code class="v-code">BaseObserverTypes</code> を実装したInterfaceを作成<br>
+            <code class="v-code">intervalMSec</code>はイベントを確認する間隔(3分以内)<br>
             参考:
             <v-code class="code">
               {{ observerTypeSample }}
