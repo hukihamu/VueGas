@@ -78,7 +78,7 @@ export type Observer<O extends BaseObserverTypes, K extends keyof O> = {
    *
    * @return 'STOP': イベント検出終了, 'NONE': イベント続行(イベントなし), O[K]['returnType']: イベント続行(イベントあり)
    */
-  observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP' | 'NONE'>
+  observe: (arg: O[K]['argType']) => Promise<Exclude<O[K]['returnType'], 'NONE' | 'STOP'> | 'STOP' | 'NONE'>
   stop: (key: string | undefined) => void
 }
 
