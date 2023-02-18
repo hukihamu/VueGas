@@ -3,13 +3,12 @@ import { ObserverType } from '@c/observerType'
 
 export const sampleObserver: Observer<ObserverType, 'sampleObserver'> = {
   observe: async arg => {
-    switch (await observer.observe('sample', arg.intervalMSec)) {
+    const event = await observer.observe('sample', arg.intervalMSec)
+    switch (event) {
       case 'UPDATE':
         return arg.text + new Date().toLocaleString('ja-JP')
-      case 'NONE':
-        return
-      case 'STOP':
-        return 'STOP'
+      default:
+        return event
     }
   },
   stop: () => {

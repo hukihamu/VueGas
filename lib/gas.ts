@@ -75,7 +75,7 @@ export type Controller<C extends BaseControllerTypes, K extends keyof C> = (
 ) => Promise<C[K]['returnType']>
 export type Observer<O extends BaseObserverTypes, K extends keyof O> = {
   // @return 'STOP' => observer stop
-  observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP'>
+  observe: (arg: O[K]['argType']) => Promise<O[K]['returnType'] | 'STOP' | 'NONE'>
   stop: () => void
 }
 
@@ -92,6 +92,11 @@ interface InitGasOption {
 type GlobalFunction = (args: unknown) => Promise<unknown>
 
 const OBSERVE_PROPERTY_KEY = 'OBSERVE'
+/**
+ * @var STOP イベント通知を終了する
+ * @var NONE イベントが発生しないままタイムアウト
+ * @var UPDATE 変更を検出
+ */
 type ObserverFlag = 'STOP' | 'UPDATE' | 'NONE'
 export const observer = {
   observe: async <K extends string>(key: K, intervalMSec: number): Promise<ObserverFlag> => {

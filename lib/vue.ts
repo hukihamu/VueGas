@@ -51,9 +51,9 @@ function setObserverTypes<C extends BaseObserverTypes>(): GasObserverClient<C> {
       arg: C[K]['argType'],
       ref: Ref<C[K]['returnType']>
     ): Promise<void> => {
-      let result: C[K]['returnType'] | null = ref.value
+      let result: C[K]['returnType'] = ref.value
       while (result !== 'STOP') {
-        ref.value = result
+        if (result !== 'NONE') ref.value = result
         result = await new Promise<C[K]['returnType']>((resolve, reject) => {
           google.script.run
             .withSuccessHandler(it => resolve(JSON.parse(it)))

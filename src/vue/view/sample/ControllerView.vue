@@ -6,7 +6,9 @@ import sendController from '@v/util/sendController'
 
 const num1 = ref(0)
 const num2 = ref(0)
+const isLoading = ref(false)
 function onClickRequest() {
+  isLoading.value = true
   // gasClient
   //   .controller<ControllerTypes>()
   //   .send('controllerSample',
@@ -14,6 +16,7 @@ function onClickRequest() {
   sendController('controllerSample', {num1: num1.value, num2: num2.value})
     .then(it => {
       alert(`Controllerへの接続成功\n和: ${it.result}\ntext: ${it.text}`)
+      isLoading.value = false
     })
 }
 const numberRule = [
@@ -92,16 +95,16 @@ export default sendController
             <v-container fluid>
               <v-row align="stretch" justify="center">
                 <v-col cols="3">
-                  <v-text-field v-model.number="num1" type="number" :rules="numberRule" />
+                  <v-text-field v-model.number="num1" type="number" :rules="numberRule" :loading="isLoading" />
                 </v-col>
                 <v-col cols="1" align-self="center">
                   +
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model.number="num2" type="number" :rules="numberRule"/>
+                  <v-text-field v-model.number="num2" type="number" :rules="numberRule" :loading="isLoading" />
                 </v-col>
                 <v-col align-self="center">
-                  <v-btn @click="onClickRequest">
+                  <v-btn :loading="isLoading" @click="onClickRequest">
                     リクエスト
                   </v-btn>
                 </v-col>
