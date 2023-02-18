@@ -24,7 +24,7 @@ export interface Logger {
 }
 
 type BaseConfig = {
-  common: 'debug'
+  common: 'debug' | string
   gas: string
   vue: string
 }
