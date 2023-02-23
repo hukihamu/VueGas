@@ -44,7 +44,11 @@ export const initGas = <C extends BaseControllerTypes>(
 const initGasOption: InitGasOption = {
   useSpreadsheetDB: (...repositoryList: { new (): BaseRepository<any> }[]) => {
     for (const repository of repositoryList) {
-      new repository().initTable()
+      try {
+        new repository().initTable()
+      }catch (e) {
+        gLogger.error('init spreadsheet error', e)
+      }
     }
     return initGasOption
   },
@@ -166,7 +170,9 @@ export abstract class BaseRepository<E extends BaseEntity> {
   protected abstract readonly tableVersion: number
   protected abstract readonly columnList: (keyof InitEntity<E>)[]
   protected readonly initData: InitEntity<E>[] = []
+  // デフォルト: user
   lockType: LockType = 'user'
+  lockWaitMSec: number = 10000
 
   protected constructor(spreadsheetId: string, tableName: string) {
     this.spreadsheetId = spreadsheetId
@@ -230,7 +236,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
     if (this.lockType === 'none') return runningInLock()
     const lock = this.lockType === 'user' ? LockService.getUserLock() : LockService.getScriptLock()
     try {
-      lock.waitLock(10000)
+      lock.waitLock(this.lockWaitMSec)
       const result = runningInLock()
       SpreadsheetApp.flush()
       return result
@@ -296,7 +302,9 @@ export abstract class BaseRepository<E extends BaseEntity> {
     this.onLock(() => {
       const range = this.getRowRange(row)
       range.clear()
-      range.setValue(BaseRepository.DELETE_LABEL)
+      const d = new Array(this.columnList.length + 1)
+      d[0] = BaseRepository.DELETE_LABEL
+      range.setValues([d])
     })
   }
 }

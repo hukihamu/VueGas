@@ -1,9 +1,9 @@
 import { config } from '@l/common'
 
 export const configKeys = {
-  common: ['debug'],
+  common: ['debug', 'spreadsheetId'],
   vue: ['vueConfig'],
-  gas: ['spreadsheetId'],
+  gas: [],
 } as const
 
 type ConfigType = {

@@ -14,8 +14,8 @@ const items = [
       ]
   },
   { title: 'スクリプトプロパティ利用', to: '/sample-config' },
-  { title: 'Spreadsheetを利用', to: '/sample-spreadsheet' },
-  { title: 'その他便利機能', to: '/sample-other' }
+  { title: 'SpreadsheetDB利用', to: '/sample-spreadsheet' },
+  { title: 'その他機能', to: '/sample-other' }
 ]
 const opened = ref(['g'])
 </script>

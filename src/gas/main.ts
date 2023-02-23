@@ -5,11 +5,13 @@ import { ControllerTypes } from '@c/controllerTypes'
 import { configKeys } from '@c/config'
 import { ObserverType } from '@c/observerType'
 import { sampleObserver } from '@g/observer/sampleObserver'
-import { setConfig } from '@g/controller/setConfig'
+import { setConfigController } from '@g/controller/setConfigController'
+import { sampleSpreadsheetController } from '@g/controller/sampleSpreadsheetController'
 
 initGas<ControllerTypes>('VueGasSample', configKeys, (global, convertController) => {
   global.controllerSample = convertController(sampleController)
-  global.setConfig = convertController(setConfig)
+  global.setConfig = convertController(setConfigController)
+  global.sampleSpreadsheet = convertController(sampleSpreadsheetController)
   return global
 })
   .useSpreadsheetDB(SampleRepository)
