@@ -120,7 +120,7 @@ export const observer = {
         PropertiesService.getUserProperties().deleteProperty(key)
         return 'STOP'
       }
-      sleep(intervalMSec)
+      gasService.utilities.sleep(intervalMSec)
     }
     return 'NONE'
   },
@@ -133,13 +133,10 @@ export const observer = {
     PropertiesService.getUserProperties().setProperty(key, 'STOP')
   },
 }
-
-export const getEmail = (): string => {
-  return Session.getActiveUser().getEmail()
-}
-
-export const sleep = (mSec: number): void => {
-  Utilities.sleep(mSec)
+export const gasService = {
+  session: Session,
+  utilities: Utilities,
+  fetch: UrlFetchApp
 }
 
 export const gLogger: Logger = {

@@ -37,32 +37,3 @@ VueとGasを利用した完全無料Webサービス構築テンプレート
 6. `AppsScript > Projectの設定 > スクリプト プロパティ`に必要な値を設定  
 7. `push-clasp:build-prod`を実行  
    (開発しながらの場合は `watch` 、Pushのみは `push-clasp` )
-
-
-
-### スクリプトプロパティを利用
-- AppsScriptのプロパティに値を設定
-- common/config.tsに登録したkey値を設定
-  - common, gas, vueの3種のスコープ(commonは両方共通)
-  - ConfigTypeを作成
-- 利用時は`config.vue or gas<ConfigType>('')`
-
-### 永続的なストレージ(Spreadsheet)を利用する
-- テーブル(entity)を作成
-  - BaseEntityを継承
-- リポジトリーを作成
-  - BaseRepositoryを継承
-- gasInit.useSpreadsheetDBにリポジトリを登録
-- 利用時は、リポジトリのインスタンスを生成する
-
-### 便利機能を利用する
-#### Logger
-#### throwMsg
-#### gas - getEmail
-#### gas - sleep
-### 追加インストール
-- vuetify => マテリアルなVueを作成
-- pinia => vue内のデータ共有
-## Issue
-- unit test
-- readme追記

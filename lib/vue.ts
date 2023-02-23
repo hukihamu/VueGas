@@ -13,7 +13,7 @@ import { components, directives } from '@l/vuetify'
  * @param vueUse vueのcreateAppにuseを追加する
  */
 export const initVue = (routes: RouteRecordRaw[],
-                        vuetifyOptions: VuetifyOptions = {components, directives},
+                        vuetifyOptions: VuetifyOptions = {},
                         vueUse: (app: App<Element>) => App<Element> = (app) => app) => {
   router = createRouter({
     history: createWebHistory(),
